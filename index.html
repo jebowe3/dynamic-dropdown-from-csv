@@ -1,0 +1,59 @@
+<!doctype html>
+<html>
+<head>
+	<title>Reading A CSV</title>
+</head>
+<body>
+	<input type="file" id="fileBox" />
+
+<br />
+<br />
+<div id="dropdown"></div>
+<div id="fields"></div>
+<!-- d3js for requesting files into web application -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/5.9.7/d3.min.js"></script>
+<script>
+	// define an empty array to hold each chapter value
+	const $chapterNames = [];
+	// define a function to read the user-selected csv
+	function _ReadCSV($a) {
+		// identify the input file
+		const $f = $a.files[0];
+		// create a working url to the input csv file
+		const path = (window.URL || window.webkitURL).createObjectURL($f);
+		// use d3 to access and parse spreadsheet data
+		d3.csv(path).then(function($e){
+			// define the data in the csv file
+			const $csvData = $e;
+			// define the csv column headers
+			const $colNames = d3.keys($e[0]);
+			// call the _CreateDropdown function
+			_CreateDropdown($csvData, $colNames);
+		});
+		// define a function to create the dropdown
+		function _CreateDropdown($csvData, $colNames) {
+			// push each chapter value to the empty $chapterNames array
+			$csvData.forEach(function($entry) {
+				$chapterNames.push($entry.chapter);
+			});
+			// filter the $chapterNames array for unique values and define
+      const $eachChapter = $chapterNames.filter((v, i, a) => a.indexOf(v) === i);
+			// establish the initial dropdown html form contents
+			let $tmpHTML = '<select><option value="0">All</option>';
+			//let $tmpHTML = '<select onchange="_UpdateFields(this.value)"><option value="0">All</option>';
+			// for each unique chapter, create a dropdown select option
+			for(let $a = 0; $a < $eachChapter.length; $a++) $tmpHTML += '<option value="' + $a+1 + '">' + $eachChapter[$a] + '</option>';
+			$tmpHTML += '</select>';
+			// add this content to the dynamic dropdown
+			document.getElementById("dropdown").innerHTML = $tmpHTML;
+		}
+	}
+	// on load, provide an option to add a csv file
+	window.onload = function() {
+		// read the csv and create the dropdown from the csv contents
+		document.getElementById('fileBox').onchange = function(){ _ReadCSV(this); }
+	}
+</script>
+
+</body>
+</html>
